@@ -33,3 +33,9 @@ export interface Build {
   attributes: Attributes
   badges?: string[]
 }
+
+export interface BoxScoreStats {
+  points: number
+  rebounds: number
+  assists: number
+}
