@@ -2,6 +2,7 @@ import { Link, Route, Routes } from 'react-router-dom'
 import BuildListPage from './pages/BuildListPage'
 import BuildFormPage from './pages/BuildFormPage'
 import ComparePage from './pages/ComparePage'
+import BoxScorePage from './pages/BoxScorePage'
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Link to="/" className="font-bold">2K MyPLAYER Tracker</Link>
         <Link to="/new" className="hover:underline">New Build</Link>
         <Link to="/compare" className="hover:underline">Compare</Link>
+        <Link to="/box-score" className="hover:underline">Box Score</Link>
       </nav>
       <div className="p-4">
         <Routes>
@@ -17,6 +19,7 @@ function App() {
           <Route path="/new" element={<BuildFormPage />} />
           <Route path="/build/:id" element={<BuildFormPage />} />
           <Route path="/compare" element={<ComparePage />} />
+          <Route path="/box-score" element={<BoxScorePage />} />
         </Routes>
       </div>
     </div>
