@@ -93,10 +93,14 @@ def parse_stats(row: str) -> dict:
 @app.post("/parse-boxscore")
 async def parse_boxscore(
     file: UploadFile = File(..., description="PNG or JPEG image"),
-    username: Optional[str] = Query(None, description="Player username"),
-    username_form: Optional[str] = Form(None, description="Player username"),
+    username_query: Optional[str] = Query(
+        None, alias="username", description="Player username"
+    ),
+    username_form: Optional[str] = Form(
+        None, alias="username", description="Player username"
+    ),
 ):
-    user = username or username_form
+    user = username_query or username_form
     if not user:
         raise HTTPException(status_code=400, detail="username is required")
     try:
