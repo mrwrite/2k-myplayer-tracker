@@ -11,8 +11,9 @@ export async function parseBoxScore(
   formData.append('file', file)
   formData.append('username', username)
 
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
     const response = await fetch(`${baseUrl}/parse-boxscore`, {
       method: 'POST',
       body: formData,
@@ -25,7 +26,10 @@ export async function parseBoxScore(
 
     return (await response.json()) as ParsedBoxScore
   } catch (err) {
-    return { error: (err as Error).message }
+    console.error('parseBoxScore error', err)
+    return {
+      error: `Unable to reach OCR server at ${baseUrl}. Ensure the backend is running.`,
+    }
   }
 }
 
