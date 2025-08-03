@@ -1,11 +1,15 @@
 import Tesseract from 'tesseract.js'
 import type { ParsedBoxScore } from '../types'
 
+function escapeRegExp(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export async function parseBoxScore(image: File | string, username: string): Promise<ParsedBoxScore> {
   const { data: { text } } = await Tesseract.recognize(image, 'eng')
 
   const lineRegex = new RegExp(
-    `${username}\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)-(\\d+)\\s+(\\d+)-(\\d+)\\s+(\\d+)-(\\d+)\\s+([^\\s]+)`,
+    `${escapeRegExp(username)}\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)-(\\d+)\\s+(\\d+)-(\\d+)\\s+(\\d+)-(\\d+)\\s+([^\\s]+)`,
     'i'
   )
 
@@ -26,6 +30,6 @@ export async function parseBoxScore(image: File | string, username: string): Pro
     ftm: match ? parseInt(match[10], 10) : 0,
     fta: match ? parseInt(match[11], 10) : 0,
     grade: match ? match[12] : '',
-    date: dateMatch ? dateMatch[1] : '',
+    date: dateMatch ? dateMatch[0] : '',
   }
 }
