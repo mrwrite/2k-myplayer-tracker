@@ -11,6 +11,7 @@ function BoxScorePage() {
   const [history, setHistory] = useState<PlayerGameStats[]>([])
   const [preview, setPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
@@ -18,9 +19,15 @@ function BoxScorePage() {
     setFile(f)
     setPreview(URL.createObjectURL(f))
     setLoading(true)
+    setError(null)
     const result = await parseBoxScore(f, username)
-    setStats(result)
-    if (result.date) setDateInput(result.date)
+    if ('error' in result) {
+      setError(result.error)
+      setStats(null)
+    } else {
+      setStats(result)
+      if (result.date) setDateInput(result.date)
+    }
     setLoading(false)
   }
 
@@ -58,6 +65,7 @@ function BoxScorePage() {
       </div>
 
       {loading && <p>Reading screenshot...</p>}
+      {error && !loading && <p className="text-red-500">{error}</p>}
 
       {preview && (
         <img src={preview} alt="preview" className="max-w-xs border rounded" />

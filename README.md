@@ -47,7 +47,8 @@ Enable Firestore and Storage in your Firebase project before running the app.
 
 ### OCR Backend
 
-An optional FastAPI server is included for parsing box score screenshots with Tesseract.
+The frontend relies on an optional FastAPI server for parsing box score screenshots with Tesseract. Set the server's base URL in
+your `.env` file using `VITE_API_URL` (defaults to `http://localhost:8000`).
 
 1. **Install system dependency**
 
