@@ -8,13 +8,13 @@ interface Props {
 
 export default function BuildCard({ build, onDelete }: Props) {
   return (
-    <div className="bg-gray-800 p-4 rounded shadow flex justify-between items-center">
+    <div className="p-4 rounded-lg shadow-md bg-gray-800/60 backdrop-blur border border-gray-700 flex justify-between items-center hover:shadow-lg transition-shadow">
       <div>
         <h3 className="text-lg font-bold">{build.name}</h3>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-300">
           {build.game} — {build.position}
         </p>
-        <p className="text-sm text-gray-400">{build.archetype}</p>
+        <p className="text-sm text-gray-300">{build.archetype}</p>
       </div>
       <div className="flex gap-2">
         <Link
