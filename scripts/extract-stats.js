@@ -13,27 +13,19 @@ async function extractStats(imagePath, username, crop) {
   img = img.resize({ width: Math.round(metadata.width * 2) })
   const processed = await img.toBuffer()
 
-  // Run OCR and grab line level text
+  // Run OCR with bounding box data
   const { data } = await Tesseract.recognize(processed, 'eng')
 
-  // Locate the username by line text instead of bounding boxes
-  const line = data.lines.find(l =>
-    l.text.toUpperCase().includes(username.toUpperCase()),
-  )
-  if (!line) throw new Error('Username not found')
-  let parts = line.text.trim().split(/\s+/)
+  // Locate the username by bounding box
+  const word = data.words.find(w => w.text.toUpperCase().includes(username.toUpperCase()))
+  if (!word) throw new Error('Username not found')
+  const y = (word.bbox.y0 + word.bbox.y1) / 2
+  const rowWords = data.words
+    .filter(w => Math.abs(((w.bbox.y0 + w.bbox.y1) / 2) - y) < 10)
+    .sort((a, b) => a.bbox.x0 - b.bbox.x0)
+  const rowText = rowWords.map(w => w.text).join(' ')
 
-  // Fix cases where fractions like 9/16 are split into ['9', '/', '16']
-  const normalized = []
-  for (let i = 0; i < parts.length; i += 1) {
-    if (parts[i + 1] === '/' && parts[i + 2]) {
-      normalized.push(`${parts[i]}/${parts[i + 2]}`)
-      i += 2
-    } else {
-      normalized.push(parts[i])
-    }
-  }
-  parts = normalized
+  const parts = rowText.split(/\s+/)
 
   if (parts.length < 12) throw new Error('Incomplete stats row')
   const [name, grade, pts, reb, ast, stl, blk, fouls, to, fgmFga, tpmTpa, ftmFta] = parts
