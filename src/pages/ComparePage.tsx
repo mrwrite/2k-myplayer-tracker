@@ -17,11 +17,11 @@ export default function ComparePage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <select
           value={firstId}
           onChange={(e) => setFirstId(e.target.value)}
-          className="p-2 bg-gray-700 rounded"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {builds.map((b) => (
             <option key={b.id} value={b.id}>
@@ -32,7 +32,7 @@ export default function ComparePage() {
         <select
           value={secondId}
           onChange={(e) => setSecondId(e.target.value)}
-          className="p-2 bg-gray-700 rounded"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {builds.map((b) => (
             <option key={b.id} value={b.id}>
@@ -43,7 +43,7 @@ export default function ComparePage() {
       </div>
       {first && second && (
         <>
-          <div className="overflow-auto">
+          <div className="overflow-auto bg-gray-800 rounded shadow p-4">
             <table className="min-w-full text-sm">
               <thead>
                 <tr>

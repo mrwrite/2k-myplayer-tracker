@@ -47,15 +47,25 @@ export default function BuildListPage() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <button onClick={handleExport} className="px-2 py-1 bg-green-600 rounded">
+        <button
+          onClick={handleExport}
+          className="px-4 py-2 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        >
           Export JSON
         </button>
-        <label className="px-2 py-1 bg-gray-700 rounded cursor-pointer">
+        <label
+          className="px-4 py-2 rounded font-semibold bg-gray-700 text-white hover:bg-gray-600 transition-colors cursor-pointer"
+        >
           Import JSON
-          <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
+          <input
+            type="file"
+            accept="application/json"
+            onChange={handleImport}
+            className="hidden"
+          />
         </label>
       </div>
-      {builds.length === 0 && <p>No builds saved.</p>}
+      {builds.length === 0 && <p className="text-gray-400">No builds saved.</p>}
       <div className="space-y-2">
         {builds.map((b) => (
           <BuildCard key={b.id} build={b} onDelete={handleDelete} />

@@ -18,7 +18,7 @@ export default function BuildFormPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-2xl mx-auto">
       <BuildForm build={build} onSave={handleSave} />
     </div>
   )
