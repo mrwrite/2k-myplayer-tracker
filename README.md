@@ -10,6 +10,17 @@
 - Export builds as JSON and import them later.
 - Data persists locally using `localStorage`; no backend setup is required.
 
+## Authentication
+
+Sign in with Google is required to use the app. Create a Google OAuth client and set the client ID in a `.env` file:
+
+```
+cp .env.example .env
+# edit .env and set VITE_GOOGLE_CLIENT_ID
+```
+
+The development and production builds will use this client ID for Google authentication.
+
 ## Running Locally
 
 1. **Install dependencies**
