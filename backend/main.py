@@ -3,9 +3,23 @@ from typing import Optional
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, Form
 import cv2
 import numpy as np
-import pytesseract
+import sys
 import re
 from datetime import date
+
+# ``pytesseract`` unconditionally imports :mod:`pandas`, which can fail when
+# the local ``pandas`` installation is not compatible with the installed
+# ``numpy`` version (raising a ``ValueError`` during import).  Since this
+# application does not rely on ``pandas`` at all, we attempt to import it and
+# silently fall back to a stub when any exception occurs.  This prevents the
+# incompatibility from crashing the API on start-up while allowing
+# ``pytesseract`` to operate in its "pandas not installed" mode.
+try:  # pragma: no cover - best effort to avoid optional dependency issues
+    import pandas  # type: ignore  # noqa: F401
+except Exception:  # pragma: no cover
+    sys.modules["pandas"] = None  # type: ignore
+
+import pytesseract
 
 app = FastAPI()
 
