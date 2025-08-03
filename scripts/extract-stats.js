@@ -4,16 +4,37 @@ import { addDoc, collection } from 'firebase/firestore'
 import { db } from './firebase.js'
 
 async function extractStats(imagePath, username, crop) {
-  let img = sharp(imagePath).grayscale()
+  // Preprocess: grayscale, normalize contrast, optionally crop and upscale
+  let img = sharp(imagePath).grayscale().normalise()
   if (crop) {
     img = img.extract(crop)
   }
+  const metadata = await img.metadata()
+  img = img.resize({ width: Math.round(metadata.width * 2) })
   const processed = await img.toBuffer()
-  const { data: { text } } = await Tesseract.recognize(processed, 'eng')
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-  const target = lines.find(l => l.toUpperCase().includes(username.toUpperCase()))
-  if (!target) throw new Error('Username not found')
-  const parts = target.split('|').map(p => p.trim())
+
+  // Run OCR and grab line level text
+  const { data } = await Tesseract.recognize(processed, 'eng')
+
+  // Locate the username by line text instead of bounding boxes
+  const line = data.lines.find(l =>
+    l.text.toUpperCase().includes(username.toUpperCase()),
+  )
+  if (!line) throw new Error('Username not found')
+  let parts = line.text.trim().split(/\s+/)
+
+  // Fix cases where fractions like 9/16 are split into ['9', '/', '16']
+  const normalized = []
+  for (let i = 0; i < parts.length; i += 1) {
+    if (parts[i + 1] === '/' && parts[i + 2]) {
+      normalized.push(`${parts[i]}/${parts[i + 2]}`)
+      i += 2
+    } else {
+      normalized.push(parts[i])
+    }
+  }
+  parts = normalized
+
   if (parts.length < 12) throw new Error('Incomplete stats row')
   const [name, grade, pts, reb, ast, stl, blk, fouls, to, fgmFga, tpmTpa, ftmFta] = parts
   const [fgm, fga] = fgmFga.split('/').map(Number)
