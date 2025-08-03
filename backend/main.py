@@ -111,4 +111,9 @@ async def parse_boxscore(
         return stats
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except pytesseract.TesseractNotFoundError:
+        raise HTTPException(
+            status_code=500,
+            detail="tesseract is not installed or it's not in your PATH",
+        )
 
