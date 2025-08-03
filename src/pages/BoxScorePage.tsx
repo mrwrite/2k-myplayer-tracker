@@ -43,28 +43,28 @@ function BoxScorePage() {
   }, [username])
 
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Upload Final Box Score</h1>
+    <div className="space-y-4">
+      <h1 className="text-xl font-bold">Upload Final Box Score</h1>
 
-      <div className="mb-4 space-y-2">
+      <div className="space-y-2 bg-gray-800 rounded shadow p-4 max-w-sm">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="text-black p-1"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
         />
         <input type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
-      {loading && <p className="mt-4">Reading screenshot...</p>}
+      {loading && <p>Reading screenshot...</p>}
 
       {preview && (
-        <img src={preview} alt="preview" className="mt-4 max-w-xs border" />
+        <img src={preview} alt="preview" className="max-w-xs border rounded" />
       )}
 
       {stats && !loading && (
-        <div className="mt-4 space-y-1">
+        <div className="space-y-1 bg-gray-800 rounded shadow p-4 max-w-sm">
           <p>Points: {stats.points}</p>
           <p>Rebounds: {stats.rebounds}</p>
           <p>Assists: {stats.assists}</p>
@@ -85,11 +85,11 @@ function BoxScorePage() {
               type="date"
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
-              className="text-black mt-2 p-1"
+              className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             />
           )}
           <button
-            className="mt-2 px-2 py-1 bg-blue-600 rounded"
+            className="px-4 py-2 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors mt-2"
             onClick={handleSave}
           >
             Save
@@ -98,7 +98,7 @@ function BoxScorePage() {
       )}
 
       {history.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 bg-gray-800 rounded shadow p-4 max-w-sm">
           <h2 className="font-bold mb-2">History</h2>
           <ul className="space-y-1">
             {history.map((h) => (
