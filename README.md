@@ -45,6 +45,33 @@ Enable Firestore and Storage in your Firebase project before running the app.
    ```
    This boots a Vite dev server (default: http://localhost:5173) where the app will be available.
 
+### OCR Backend
+
+An optional FastAPI server is included for parsing box score screenshots with Tesseract.
+
+1. **Install system dependency**
+
+   Install the Tesseract binary if it is not already available:
+
+   ```bash
+   sudo apt-get update && sudo apt-get install tesseract-ocr
+   ```
+
+2. **Install Python dependencies**
+
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+
+3. **Run the API**
+
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+   Send a `POST` request to `http://localhost:8000/parse-boxscore?username=AUSWEN` with a PNG or JPEG file field named `file` to receive parsed stats.
+
 ## Build for Production
 
 ```bash
