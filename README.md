@@ -9,6 +9,7 @@
 - Compare two builds side by side with a table and radar chart.
 - Export builds as JSON and import them later.
 - Data persists locally using `localStorage`; no backend setup is required.
+- Upload a box-score screenshot to extract and persist game stats in Firebase.
 
 ## Authentication
 
@@ -20,6 +21,17 @@ cp .env.example .env
 ```
 
 The development and production builds will use this client ID for Google authentication.
+
+## Firebase Configuration
+
+This project uses Firebase for storing screenshots and game stats. Copy the example environment file and supply your Firebase settings:
+
+```
+cp .env.example .env
+# edit .env with your Firebase credentials
+```
+
+Enable Firestore and Storage in your Firebase project before running the app.
 
 ## Running Locally
 
