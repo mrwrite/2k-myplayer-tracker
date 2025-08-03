@@ -26,6 +26,7 @@ async function extractStats(imagePath, username, crop) {
   const rowText = rowWords.map(w => w.text).join(' ')
 
   const parts = rowText.split(/\s+/)
+
   if (parts.length < 12) throw new Error('Incomplete stats row')
   const [name, grade, pts, reb, ast, stl, blk, fouls, to, fgmFga, tpmTpa, ftmFta] = parts
   const [fgm, fga] = fgmFga.split('/').map(Number)
