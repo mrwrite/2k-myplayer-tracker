@@ -34,8 +34,23 @@ export interface Build {
   badges?: string[]
 }
 
-export interface BoxScoreStats {
+export interface PlayerGameStats {
+  id?: string
+  username: string
+  date: string
   points: number
   rebounds: number
   assists: number
+  steals: number
+  blocks: number
+  fgm: number
+  fga: number
+  tpm: number
+  tpa: number
+  ftm: number
+  fta: number
+  grade: string
+  screenshotUrl: string
 }
+
+export type ParsedBoxScore = Omit<PlayerGameStats, 'id' | 'screenshotUrl'>
