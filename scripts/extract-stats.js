@@ -4,16 +4,28 @@ import { addDoc, collection } from 'firebase/firestore'
 import { db } from './firebase.js'
 
 async function extractStats(imagePath, username, crop) {
-  let img = sharp(imagePath).grayscale()
+  // Preprocess: grayscale, normalize contrast, optionally crop and upscale
+  let img = sharp(imagePath).grayscale().normalise()
   if (crop) {
     img = img.extract(crop)
   }
+  const metadata = await img.metadata()
+  img = img.resize({ width: Math.round(metadata.width * 2) })
   const processed = await img.toBuffer()
-  const { data: { text } } = await Tesseract.recognize(processed, 'eng')
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-  const target = lines.find(l => l.toUpperCase().includes(username.toUpperCase()))
-  if (!target) throw new Error('Username not found')
-  const parts = target.split('|').map(p => p.trim())
+
+  // Run OCR with bounding box data
+  const { data } = await Tesseract.recognize(processed, 'eng')
+
+  // Locate the username by bounding box
+  const word = data.words.find(w => w.text.toUpperCase().includes(username.toUpperCase()))
+  if (!word) throw new Error('Username not found')
+  const y = (word.bbox.y0 + word.bbox.y1) / 2
+  const rowWords = data.words
+    .filter(w => Math.abs(((w.bbox.y0 + w.bbox.y1) / 2) - y) < 10)
+    .sort((a, b) => a.bbox.x0 - b.bbox.x0)
+  const rowText = rowWords.map(w => w.text).join(' ')
+
+  const parts = rowText.split(/\s+/)
   if (parts.length < 12) throw new Error('Incomplete stats row')
   const [name, grade, pts, reb, ast, stl, blk, fouls, to, fgmFga, tpmTpa, ftmFta] = parts
   const [fgm, fga] = fgmFga.split('/').map(Number)
