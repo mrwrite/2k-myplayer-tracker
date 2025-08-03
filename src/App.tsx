@@ -9,8 +9,8 @@ function App() {
   const { logout } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      <nav className="bg-gray-800/50 backdrop-blur p-4 shadow flex flex-wrap items-center gap-4">
+    <div className="min-h-screen text-gray-100 bg-black/30 backdrop-blur-sm">
+      <nav className="bg-gradient-to-r from-blue-700/70 to-purple-700/70 backdrop-blur p-4 shadow flex flex-wrap items-center gap-4 rounded-b">
         <Link to="/" className="font-bold text-xl">
           2K MyPLAYER Tracker
         </Link>
