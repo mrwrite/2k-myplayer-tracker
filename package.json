@@ -12,11 +12,13 @@
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
     "chart.js": "^4.5.0",
+    "dotenv": "^17.2.1",
     "firebase": "^11.10.0",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.1",
+    "sharp": "^0.34.3",
     "tesseract.js": "^6.0.1"
   },
   "devDependencies": {

@@ -72,7 +72,10 @@ export default function BuildForm({ build, onSave }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-gray-800 rounded shadow p-4"
+    >
       <div className="grid grid-cols-2 gap-4">
         <input
           name="name"
@@ -80,7 +83,7 @@ export default function BuildForm({ build, onSave }: Props) {
           onChange={handleChange}
           required
           placeholder="Name"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           name="game"
@@ -88,7 +91,7 @@ export default function BuildForm({ build, onSave }: Props) {
           onChange={handleChange}
           required
           placeholder="Game"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           name="position"
@@ -96,7 +99,7 @@ export default function BuildForm({ build, onSave }: Props) {
           onChange={handleChange}
           required
           placeholder="Position"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
@@ -107,7 +110,7 @@ export default function BuildForm({ build, onSave }: Props) {
           min={60}
           max={90}
           placeholder="Height (in)"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
@@ -118,7 +121,7 @@ export default function BuildForm({ build, onSave }: Props) {
           min={150}
           max={400}
           placeholder="Weight (lbs)"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
@@ -129,7 +132,7 @@ export default function BuildForm({ build, onSave }: Props) {
           min={70}
           max={90}
           placeholder="Wingspan (in)"
-          className="p-2 rounded bg-gray-700"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           name="archetype"
@@ -137,14 +140,14 @@ export default function BuildForm({ build, onSave }: Props) {
           onChange={handleChange}
           required
           placeholder="Archetype"
-          className="p-2 rounded bg-gray-700 col-span-2"
+          className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 col-span-2"
         />
       </div>
       <h3 className="text-lg font-bold">Attributes</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {attributeKeys.map((attr) => (
           <div key={attr} className="flex flex-col">
-            <label className="text-sm capitalize">
+            <label className="text-sm capitalize mb-1">
               {attr.replace(/([A-Z])/g, ' $1')}
             </label>
             <input
@@ -155,12 +158,15 @@ export default function BuildForm({ build, onSave }: Props) {
               min={0}
               max={99}
               required
-              className="p-2 rounded bg-gray-700"
+              className="bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         ))}
       </div>
-      <button type="submit" className="px-4 py-2 bg-blue-600 rounded">
+      <button
+        type="submit"
+        className="px-4 py-2 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+      >
         Save Build
       </button>
     </form>

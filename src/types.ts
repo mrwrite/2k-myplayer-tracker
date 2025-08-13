@@ -43,6 +43,8 @@ export interface PlayerGameStats {
   assists: number
   steals: number
   blocks: number
+  fouls: number
+  turnovers: number
   fgm: number
   fga: number
   tpm: number
