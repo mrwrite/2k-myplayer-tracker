@@ -73,7 +73,7 @@ def extract_row(img: np.ndarray, username: str) -> str:
 
 def parse_stats(row: str) -> dict:
     pattern = re.compile(
-        r"^(?P<username>\w+)\s+(?P<grade>[A-F])\s+"\
+        r"^(?P<username>[\w-]+)\s+(?P<grade>[A-F][+-]?)\s+"\
         r"(?P<points>\d+)\s+(?P<rebounds>\d+)\s+(?P<assists>\d+)\s+"\
         r"(?P<steals>\d+)\s+(?P<blocks>\d+)\s+(?P<fouls>\d+)\s+(?P<turnovers>\d+)\s+"\
         r"(?P<fgm>\d+)/(?P<fga>\d+)\s+(?P<tpm>\d+)/(?P<tpa>\d+)\s+(?P<ftm>\d+)/(?P<fta>\d+)"
