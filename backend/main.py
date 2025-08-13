@@ -21,6 +21,7 @@ except Exception:  # pragma: no cover
     sys.modules["pandas"] = None  # type: ignore
 
 import pytesseract
+import difflib
 
 app = FastAPI()
 
@@ -47,15 +48,26 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
 def extract_row(img: np.ndarray, username: str) -> str:
     data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
     target = username.upper()
+    best_idx = None
+    best_score = 0.0
     for i, text in enumerate(data["text"]):
-        if text.strip().upper() == target:
-            target_top = data["top"][i]
-            words = []
-            for j in range(len(data["text"])):
-                if abs(data["top"][j] - target_top) <= 10 and data["text"][j].strip():
-                    words.append((data["left"][j], data["text"][j]))
-            row = " ".join(w for _, w in sorted(words, key=lambda x: x[0]))
-            return row
+        candidate = text.strip().upper()
+        if not candidate:
+            continue
+        score = difflib.SequenceMatcher(None, candidate, target).ratio()
+        if score > best_score:
+            best_score = score
+            best_idx = i
+        if score == 1.0:
+            break
+    if best_idx is not None and best_score > 0.8:
+        target_top = data["top"][best_idx]
+        words = []
+        for j in range(len(data["text"])):
+            if abs(data["top"][j] - target_top) <= 10 and data["text"][j].strip():
+                words.append((data["left"][j], data["text"][j]))
+        row = " ".join(w for _, w in sorted(words, key=lambda x: x[0]))
+        return row
     raise ValueError("Username not found in image")
 
 
