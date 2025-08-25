@@ -74,6 +74,7 @@ def extract_row(img: np.ndarray, username: str) -> str:
 def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
     """Parse a row of OCR text into structured statistics.
 
+
     The OCR output is not always consistent: shooting splits may appear as a
     combined ``made/attempted`` token or as two separate tokens and the grade
     may precede or follow the username.  Sometimes the grade and username are
@@ -87,6 +88,7 @@ def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
         raise ValueError("Unable to parse stats row")
 
     grade_pattern = re.compile(r"^[A-F](?:[-+])?$")
+
 
     username = None
     grade = ""
@@ -124,8 +126,10 @@ def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
                 tokens.pop(i)
                 break
 
+
     def _get(index: int) -> str:
-        return tokens[index] if index < len(tokens) else "0"
+        idx = start + index
+        return tokens[idx] if idx < len(tokens) else "0"
 
     def _to_int(value: str) -> int:
         try:
