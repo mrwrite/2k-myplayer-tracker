@@ -87,6 +87,7 @@ def parse_stats(row: str) -> dict:
 
     username, grade = tokens[0], tokens[1]
 
+
     def _get(index: int) -> str:
         return tokens[index] if index < len(tokens) else "0"
 
@@ -104,6 +105,7 @@ def parse_stats(row: str) -> dict:
     fouls = _to_int(_get(7))
     turnovers = _to_int(_get(8))
 
+
     idx = 9
 
     def _parse_pair(index: int) -> tuple[int, int, int]:
@@ -114,6 +116,7 @@ def parse_stats(row: str) -> dict:
         else:
             made = token
             attempted = _get(index + 1)
+
             return _to_int(made), _to_int(attempted), index + 2
 
     fgm, fga, idx = _parse_pair(idx)
