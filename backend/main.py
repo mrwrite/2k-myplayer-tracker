@@ -21,6 +21,7 @@ except Exception:  # pragma: no cover
 
 import pytesseract
 import difflib
+import re
 
 app = FastAPI()
 
@@ -79,17 +80,27 @@ def parse_stats(row: str) -> dict:
     format exclusively and rejected rows that used the latter.  To make the
     parser more tolerant, we now tokenise the row and interpret the shooting
     numbers whether they appear as combined or separate values.
+
+    In addition, the grade may appear before or after the username.  We detect
+    the order dynamically so that both layouts are parsed correctly.
     """
 
     tokens = row.split()
     if len(tokens) < 2:
         raise ValueError("Unable to parse stats row")
 
-    username, grade = tokens[0], tokens[1]
+    grade_pattern = re.compile(r"^[A-F](?:[-+])?$")
+    if grade_pattern.match(tokens[0]) and len(tokens) >= 3:
+        grade, username = tokens[0], tokens[1]
+        start = 2
+    else:
+        username, grade = tokens[0], tokens[1]
+        start = 2
 
 
     def _get(index: int) -> str:
-        return tokens[index] if index < len(tokens) else "0"
+        idx = start + index
+        return tokens[idx] if idx < len(tokens) else "0"
 
     def _to_int(value: str) -> int:
         try:
@@ -97,16 +108,16 @@ def parse_stats(row: str) -> dict:
         except ValueError:
             return 0
 
-    points = _to_int(_get(2))
-    rebounds = _to_int(_get(3))
-    assists = _to_int(_get(4))
-    steals = _to_int(_get(5))
-    blocks = _to_int(_get(6))
-    fouls = _to_int(_get(7))
-    turnovers = _to_int(_get(8))
+    points = _to_int(_get(0))
+    rebounds = _to_int(_get(1))
+    assists = _to_int(_get(2))
+    steals = _to_int(_get(3))
+    blocks = _to_int(_get(4))
+    fouls = _to_int(_get(5))
+    turnovers = _to_int(_get(6))
 
 
-    idx = 9
+    idx = 7
 
     def _parse_pair(index: int) -> tuple[int, int, int]:
         token = _get(index)
