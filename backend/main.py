@@ -128,8 +128,16 @@ def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
 
 
     def _get(index: int) -> str:
-        idx = start + index
-        return tokens[idx] if idx < len(tokens) else "0"
+        """Safely retrieve a token by index.
+
+        The previous implementation attempted to offset the lookup using an
+        undefined ``start`` variable which resulted in a ``NameError`` during
+        execution.  Since the statistics tokens are already trimmed to begin at
+        the first numeric value, we can simply index directly into the list and
+        return ``"0"`` when the requested index is out of range.
+        """
+
+        return tokens[index] if index < len(tokens) else "0"
 
     def _to_int(value: str) -> int:
         try:
