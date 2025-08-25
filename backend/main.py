@@ -21,6 +21,7 @@ except Exception:  # pragma: no cover
 
 import pytesseract
 import difflib
+import re
 
 app = FastAPI()
 
@@ -70,23 +71,58 @@ def extract_row(img: np.ndarray, username: str) -> str:
     raise ValueError("Username not found in image")
 
 
-def parse_stats(row: str) -> dict:
+def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
     """Parse a row of OCR text into structured statistics.
 
-    The game client sometimes renders shooting splits either as a single
-    ``made/attempted`` token (e.g. ``"5/12"``) or as two separate tokens
-    (``"5 12"``).  The original regular expression expected the former
-    format exclusively and rejected rows that used the latter.  To make the
-    parser more tolerant, we now tokenise the row and interpret the shooting
-    numbers whether they appear as combined or separate values.
+    The OCR output is not always consistent: shooting splits may appear as a
+    combined ``made/attempted`` token or as two separate tokens and the grade
+    may precede or follow the username.  Sometimes the grade and username are
+    fused together into a single token (e.g. ``"B-AUSWEN"``).  This parser is
+    tolerant of those variations and can optionally use a known ``expected_username``
+    to identify and separate the username from a fused grade prefix.
     """
 
     tokens = row.split()
-    if len(tokens) < 2:
+    if not tokens:
         raise ValueError("Unable to parse stats row")
 
-    username, grade = tokens[0], tokens[1]
+    grade_pattern = re.compile(r"^[A-F](?:[-+])?$")
 
+    username = None
+    grade = ""
+
+    if expected_username:
+        # Locate the token that best matches the expected username
+        best_idx, best_score = None, 0.0
+        target = expected_username.upper()
+        for i, token in enumerate(tokens):
+            score = difflib.SequenceMatcher(None, token.upper(), target).ratio()
+            if score > best_score:
+                best_idx, best_score = i, score
+        if best_idx is not None and best_score > 0.6:
+            token = tokens.pop(best_idx)
+            username = expected_username
+            # Check if the grade is fused with the username token
+            if token.upper().endswith(target):
+                prefix = token[: -len(expected_username)]
+                if grade_pattern.match(prefix):
+                    grade = prefix
+            elif token.upper().startswith(target):
+                suffix = token[len(expected_username) :]
+                if grade_pattern.match(suffix):
+                    grade = suffix
+        else:
+            username = tokens.pop(0)
+    else:
+        username = tokens.pop(0)
+
+    # If grade was not part of the fused token, look for a standalone grade
+    if not grade:
+        for i, token in enumerate(tokens):
+            if grade_pattern.match(token):
+                grade = token
+                tokens.pop(i)
+                break
 
     def _get(index: int) -> str:
         return tokens[index] if index < len(tokens) else "0"
@@ -97,16 +133,16 @@ def parse_stats(row: str) -> dict:
         except ValueError:
             return 0
 
-    points = _to_int(_get(2))
-    rebounds = _to_int(_get(3))
-    assists = _to_int(_get(4))
-    steals = _to_int(_get(5))
-    blocks = _to_int(_get(6))
-    fouls = _to_int(_get(7))
-    turnovers = _to_int(_get(8))
+    points = _to_int(_get(0))
+    rebounds = _to_int(_get(1))
+    assists = _to_int(_get(2))
+    steals = _to_int(_get(3))
+    blocks = _to_int(_get(4))
+    fouls = _to_int(_get(5))
+    turnovers = _to_int(_get(6))
 
 
-    idx = 9
+    idx = 7
 
     def _parse_pair(index: int) -> tuple[int, int, int]:
         token = _get(index)
@@ -160,7 +196,7 @@ async def parse_boxscore(
         contents = await file.read()
         processed = preprocess_image(contents)
         row = extract_row(processed, user)
-        stats = parse_stats(row)
+        stats = parse_stats(row, user)
         return stats
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
