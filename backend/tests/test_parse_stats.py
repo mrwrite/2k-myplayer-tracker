@@ -1,22 +1,33 @@
+import types
 from pathlib import Path
 import sys
 
+sys.modules["cv2"] = types.SimpleNamespace()
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from main import parse_stats
 
 
-def test_parse_stats_accepts_split_tokens() -> None:
-    row = "AUSWEN A 21 5 11 2 0 4 0 9 16 2 2 1 2"
+def test_parse_stats_accepts_grade_first_split_tokens() -> None:
+    row = "A AUSWEN 21 5 11 2 0 4 0 9 16 2 2 1 2"
     stats = parse_stats(row)
     assert stats["username"] == "AUSWEN"
+    assert stats["grade"] == "A"
     assert stats["fgm"] == 9 and stats["fga"] == 16
     assert stats["tpm"] == 2 and stats["tpa"] == 2
     assert stats["ftm"] == 1 and stats["fta"] == 2
 
+
+def test_parse_stats_accepts_username_first() -> None:
+    row = "AUSWEN B+ 15 3 4 1 1 2 0 6/10 3/5 0/0"
+    stats = parse_stats(row)
+    assert stats["grade"] == "B+"
+    assert stats["points"] == 15
+    assert stats["fgm"] == 6 and stats["fga"] == 10
+    assert stats["tpm"] == 3 and stats["tpa"] == 5
+
+
 def test_parse_stats_tolerates_missing_tokens() -> None:
-    row = "AUSWEN A 10 5 3 2 1 2 3 5/10 2/5"
+    row = "A AUSWEN 10 5 3 2 1 2 3 5/10 2/5"
     stats = parse_stats(row)
     assert stats["fta"] == 0 and stats["ftm"] == 0
-
-
