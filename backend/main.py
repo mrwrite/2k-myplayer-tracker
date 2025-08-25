@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import cv2
 import numpy as np
 import sys
-import re
 from datetime import date
 
 # ``pytesseract`` unconditionally imports :mod:`pandas`, which can fail when
@@ -72,32 +71,68 @@ def extract_row(img: np.ndarray, username: str) -> str:
 
 
 def parse_stats(row: str) -> dict:
-    pattern = re.compile(
-        r"^(?P<username>[\w-]+)\s+(?P<grade>[A-F][+-]?)\s+"\
-        r"(?P<points>\d+)\s+(?P<rebounds>\d+)\s+(?P<assists>\d+)\s+"\
-        r"(?P<steals>\d+)\s+(?P<blocks>\d+)\s+(?P<fouls>\d+)\s+(?P<turnovers>\d+)\s+"\
-        r"(?P<fgm>\d+)/(?P<fga>\d+)\s+(?P<tpm>\d+)/(?P<tpa>\d+)\s+(?P<ftm>\d+)/(?P<fta>\d+)"
-    )
-    match = pattern.match(row)
-    if not match:
+    """Parse a row of OCR text into structured statistics.
+
+    The game client sometimes renders shooting splits either as a single
+    ``made/attempted`` token (e.g. ``"5/12"``) or as two separate tokens
+    (``"5 12"``).  The original regular expression expected the former
+    format exclusively and rejected rows that used the latter.  To make the
+    parser more tolerant, we now tokenise the row and interpret the shooting
+    numbers whether they appear as combined or separate values.
+    """
+
+    tokens = row.split()
+    if len(tokens) < 12:
         raise ValueError("Unable to parse stats row")
-    groups = match.groupdict()
+
+    username, grade = tokens[0], tokens[1]
+
+    def _to_int(value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            return 0
+
+    points = _to_int(tokens[2])
+    rebounds = _to_int(tokens[3])
+    assists = _to_int(tokens[4])
+    steals = _to_int(tokens[5])
+    blocks = _to_int(tokens[6])
+    fouls = _to_int(tokens[7])
+    turnovers = _to_int(tokens[8])
+
+    idx = 9
+
+    def _parse_pair(index: int) -> tuple[int, int, int]:
+        token = tokens[index]
+        if "/" in token:
+            made, attempted = token.split("/", 1)
+            return _to_int(made), _to_int(attempted), index + 1
+        else:
+            made = tokens[index]
+            attempted = tokens[index + 1] if index + 1 < len(tokens) else "0"
+            return _to_int(made), _to_int(attempted), index + 2
+
+    fgm, fga, idx = _parse_pair(idx)
+    tpm, tpa, idx = _parse_pair(idx)
+    ftm, fta, idx = _parse_pair(idx)
+
     return {
-        "username": groups["username"],
-        "grade": groups["grade"],
-        "points": int(groups["points"]),
-        "rebounds": int(groups["rebounds"]),
-        "assists": int(groups["assists"]),
-        "steals": int(groups["steals"]),
-        "blocks": int(groups["blocks"]),
-        "fouls": int(groups["fouls"]),
-        "turnovers": int(groups["turnovers"]),
-        "fgm": int(groups["fgm"]),
-        "fga": int(groups["fga"]),
-        "tpm": int(groups["tpm"]),
-        "tpa": int(groups["tpa"]),
-        "ftm": int(groups["ftm"]),
-        "fta": int(groups["fta"]),
+        "username": username,
+        "grade": grade,
+        "points": points,
+        "rebounds": rebounds,
+        "assists": assists,
+        "steals": steals,
+        "blocks": blocks,
+        "fouls": fouls,
+        "turnovers": turnovers,
+        "fgm": fgm,
+        "fga": fga,
+        "tpm": tpm,
+        "tpa": tpa,
+        "ftm": ftm,
+        "fta": fta,
         "date": date.today().isoformat(),
     }
 
