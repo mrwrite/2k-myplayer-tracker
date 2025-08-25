@@ -82,10 +82,14 @@ def parse_stats(row: str) -> dict:
     """
 
     tokens = row.split()
-    if len(tokens) < 12:
+    if len(tokens) < 2:
         raise ValueError("Unable to parse stats row")
 
     username, grade = tokens[0], tokens[1]
+
+
+    def _get(index: int) -> str:
+        return tokens[index] if index < len(tokens) else "0"
 
     def _to_int(value: str) -> int:
         try:
@@ -93,24 +97,26 @@ def parse_stats(row: str) -> dict:
         except ValueError:
             return 0
 
-    points = _to_int(tokens[2])
-    rebounds = _to_int(tokens[3])
-    assists = _to_int(tokens[4])
-    steals = _to_int(tokens[5])
-    blocks = _to_int(tokens[6])
-    fouls = _to_int(tokens[7])
-    turnovers = _to_int(tokens[8])
+    points = _to_int(_get(2))
+    rebounds = _to_int(_get(3))
+    assists = _to_int(_get(4))
+    steals = _to_int(_get(5))
+    blocks = _to_int(_get(6))
+    fouls = _to_int(_get(7))
+    turnovers = _to_int(_get(8))
+
 
     idx = 9
 
     def _parse_pair(index: int) -> tuple[int, int, int]:
-        token = tokens[index]
+        token = _get(index)
         if "/" in token:
             made, attempted = token.split("/", 1)
             return _to_int(made), _to_int(attempted), index + 1
         else:
-            made = tokens[index]
-            attempted = tokens[index + 1] if index + 1 < len(tokens) else "0"
+            made = token
+            attempted = _get(index + 1)
+
             return _to_int(made), _to_int(attempted), index + 2
 
     fgm, fga, idx = _parse_pair(idx)
