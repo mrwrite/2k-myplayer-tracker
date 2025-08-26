@@ -40,13 +40,20 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
     if img is None:
         raise ValueError("Unable to decode image")
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Upscale small screenshots to help Tesseract recognise tiny numbers
+    gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
     contrasted = cv2.convertScaleAbs(gray, alpha=1.5, beta=0)
-    _, thresh = cv2.threshold(contrasted, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, thresh = cv2.threshold(
+        contrasted, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU
+    )
     return thresh
 
 
 def extract_row(img: np.ndarray, username: str) -> str:
-    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    config = "--psm 6 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/+-"
+    data = pytesseract.image_to_data(
+        img, output_type=pytesseract.Output.DICT, config=config
+    )
     target = username.upper()
     best_idx = None
     best_score = 0.0
