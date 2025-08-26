@@ -30,7 +30,7 @@ def test_extract_row_handles_ocr_errors(monkeypatch) -> None:
         "left": list(range(0, 1200, 100)),
     }
 
-    def fake_image_to_data(img, output_type):
+    def fake_image_to_data(img, output_type, **kwargs):
         return fake_data
 
     monkeypatch.setattr(pytesseract, "image_to_data", fake_image_to_data)
