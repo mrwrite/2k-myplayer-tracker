@@ -133,24 +133,25 @@ def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
                 tokens.pop(i)
                 break
 
+    def _is_int(token: str) -> bool:
+        try:
+            int(token)
+            return True
+        except ValueError:
+            return False
 
-    def _get(index: int) -> str:
-        """Safely retrieve a token by index.
+    while tokens and not _is_int(tokens[0]):
+        tokens.pop(0)
 
-        The previous implementation attempted to offset the lookup using an
-        undefined ``start`` variable which resulted in a ``NameError`` during
-        execution.  Since the statistics tokens are already trimmed to begin at
-        the first numeric value, we can simply index directly into the list and
-        return ``"0"`` when the requested index is out of range.
-        """
-
-        return tokens[index] if index < len(tokens) else "0"
 
     def _to_int(value: str) -> int:
         try:
             return int(value)
         except ValueError:
             return 0
+
+    def _get(index: int) -> str:
+        return tokens[index] if index < len(tokens) else "0"
 
     points = _to_int(_get(0))
     rebounds = _to_int(_get(1))
