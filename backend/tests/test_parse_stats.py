@@ -52,3 +52,13 @@ def test_parse_stats_skips_non_numeric_prefix() -> None:
     assert stats["rebounds"] == 2
     assert stats["assists"] == 3
     assert stats["fgm"] == 7 and stats["fga"] == 14
+
+
+def test_parse_stats_handles_punctuated_numbers() -> None:
+    """Trailing punctuation should not shift subsequent stats."""
+
+    row = "A AUSWEN 17: 2 2 0 0 0 3 7/10 3/4 0/0"
+    stats = parse_stats(row, "AUSWEN")
+    assert stats["points"] == 17
+    assert stats["rebounds"] == 2
+    assert stats["turnovers"] == 3
