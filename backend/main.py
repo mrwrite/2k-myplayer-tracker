@@ -133,22 +133,29 @@ def parse_stats(row: str, expected_username: Optional[str] = None) -> dict:
                 tokens.pop(i)
                 break
 
+    def _clean_number(token: str) -> str:
+        """Return a digits-only representation of ``token``.
+
+        OCR output sometimes appends punctuation (e.g. ``"17:"``) or misreads
+        letters that resemble digits.  This helper strips out non-numeric
+        characters and normalises common confusions so that the resulting
+        string can be safely converted to an integer.
+        """
+
+        # Normalise common OCR mistakes where letters are recognised as digits
+        token = token.upper().replace("O", "0").replace("I", "1")
+        # Remove any remaining non-digit characters
+        return re.sub(r"[^0-9]", "", token)
+
     def _is_int(token: str) -> bool:
-        try:
-            int(token)
-            return True
-        except ValueError:
-            return False
+        return bool(_clean_number(token))
 
     while tokens and not _is_int(tokens[0]):
         tokens.pop(0)
 
-
     def _to_int(value: str) -> int:
-        try:
-            return int(value)
-        except ValueError:
-            return 0
+        cleaned = _clean_number(value)
+        return int(cleaned) if cleaned else 0
 
     def _get(index: int) -> str:
         return tokens[index] if index < len(tokens) else "0"
